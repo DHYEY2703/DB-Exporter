@@ -10,27 +10,47 @@ class DatabaseExporter {
     }
 
     /**
-     * Exports a table to a JSON file.
-     * @param {string} tableName - The name of the table to export.
-     * @param {string} outputPath - The path to save the JSON file.
+     * Exports the entire database (schema + data) to a SQL file.
+     * @param {string} outputPath - The path to save the .sql file.
      * @returns {Promise<boolean>}
      */
-    async exportToJson(tableName, outputPath) {
+    async exportFullDbToSql(outputPath) {
         let connection;
         try {
-            // Connect to the database
             connection = await mysql.createConnection(this.dbConfig);
             
-            // Fetch the data
-            const [rows] = await connection.execute(`SELECT * FROM ${tableName}`);
+            const [tablesResult] = await connection.execute('SHOW TABLES');
+            const tables = tablesResult.map(row => Object.values(row)[0]);
             
-            // Write data to a JSON file
-            await fs.writeFile(outputPath, JSON.stringify(rows, null, 2));
+            let sqlOutput = `-- Full Database Export (Schema + Data)\n\n`;
+
+            for (const table of tables) {
+                // Get Schema
+                const [createTableResult] = await connection.execute(`SHOW CREATE TABLE \`${table}\``);
+                const createStatement = createTableResult[0]['Create Table'];
+                sqlOutput += `-- -------------------------------------------\n`;
+                sqlOutput += `-- Structure for table: ${table}\n`;
+                sqlOutput += `-- -------------------------------------------\n`;
+                sqlOutput += `DROP TABLE IF EXISTS \`${table}\`;\n`;
+                sqlOutput += `${createStatement};\n\n`;
+
+                // Get Data
+                const [rows] = await connection.execute(`SELECT * FROM \`${table}\``);
+                if (rows.length > 0) {
+                    sqlOutput += `-- Data for table: ${table}\n`;
+                    for (const row of rows) {
+                        const values = Object.values(row).map(val => connection.escape(val)).join(', ');
+                        sqlOutput += `INSERT INTO \`${table}\` VALUES (${values});\n`;
+                    }
+                    sqlOutput += `\n`;
+                }
+            }
             
-            console.log(`Successfully exported '${tableName}' to ${outputPath}`);
+            await fs.writeFile(outputPath, sqlOutput);
+            console.log(`Successfully exported full database to ${outputPath}`);
             return true;
         } catch (error) {
-            console.error("Failed to export database:", error);
+            console.error("Failed to export full database:", error);
             throw error;
         } finally {
             if (connection) {

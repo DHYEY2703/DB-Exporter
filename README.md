@@ -1,6 +1,6 @@
 # DB-Exporter
 
-A custom Node.js library to easily export MySQL database tables to JSON files.
+A custom Node.js library to easily export MySQL databases (schema and data) to SQL files.
 
 ## Installation
 
@@ -22,12 +22,12 @@ const exporter = new DatabaseExporter({
     database: 'my_app_db'
 });
 
-// 1. Export Data to JSON
-exporter.exportToJson('users', './users_backup.json')
-    .then(() => console.log("Data export done!"))
+// 1. Export Full Database (Schema + Data) to SQL
+exporter.exportFullDbToSql('./full_backup.sql')
+    .then(() => console.log("Full DB export done!"))
     .catch(err => console.error(err));
 
-// 2. Export Schema to SQL
+// 2. Export Schema Only to SQL
 exporter.exportSchema('./schema_backup.sql')
     .then(() => console.log("Schema export done!"))
     .catch(err => console.error(err));

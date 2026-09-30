@@ -1,7 +1,7 @@
 {
   "name": "easy-db-export",
-  "version": "1.1.0",
-  "description": "A custom library to export database data to JSON",
+  "version": "1.2.0",
+  "description": "A custom library to fully export MySQL database schema and data to SQL files",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
