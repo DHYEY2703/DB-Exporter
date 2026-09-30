@@ -1,0 +1,20 @@
+{
+  "name": "db-exporter",
+  "version": "1.0.0",
+  "description": "A custom library to export database data to JSON",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "database",
+    "export",
+    "mysql",
+    "utility"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mysql2": "^3.9.0"
+  }
+}
