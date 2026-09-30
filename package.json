@@ -1,5 +1,5 @@
 {
-  "name": "@dhyey2703/db-exporter",
+  "name": "easy-db-export",
   "version": "1.0.0",
   "description": "A custom library to export database data to JSON",
   "main": "src/index.js",
