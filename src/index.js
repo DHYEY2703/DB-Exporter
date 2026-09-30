@@ -38,6 +38,46 @@ class DatabaseExporter {
             }
         }
     }
+
+    /**
+     * Exports the entire database schema to a SQL file (structure only, no data).
+     * @param {string} outputPath - The path to save the .sql file.
+     * @returns {Promise<boolean>}
+     */
+    async exportSchema(outputPath) {
+        let connection;
+        try {
+            connection = await mysql.createConnection(this.dbConfig);
+            
+            // Get a list of all tables
+            const [tablesResult] = await connection.execute('SHOW TABLES');
+            const tables = tablesResult.map(row => Object.values(row)[0]);
+            
+            let schemaSql = `-- Database Schema Export\n\n`;
+
+            for (const table of tables) {
+                // Get the CREATE TABLE statement for each table
+                const [createTableResult] = await connection.execute(`SHOW CREATE TABLE \`${table}\``);
+                const createStatement = createTableResult[0]['Create Table'];
+                
+                schemaSql += `-- Structure for table: ${table}\n`;
+                schemaSql += `${createStatement};\n\n`;
+            }
+            
+            // Write to the .sql file
+            await fs.writeFile(outputPath, schemaSql);
+            
+            console.log(`Successfully exported schema to ${outputPath}`);
+            return true;
+        } catch (error) {
+            console.error("Failed to export schema:", error);
+            throw error;
+        } finally {
+            if (connection) {
+                await connection.end();
+            }
+        }
+    }
 }
 
 // Export the class so others can use it
