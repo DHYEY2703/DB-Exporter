@@ -1,13 +1,17 @@
-# Easy DB Export - User Guide 🚀
+# Easy DB Export - User Guide 🚀 (v2.0)
 
-Welcome to `easy-db-export`! This guide will walk you through exactly how to install this library and use it to instantly back up or migrate your MySQL databases.
+Welcome to `easy-db-export`! This guide will walk you through exactly how to install this library and use it to instantly back up or migrate your databases.
 
 ## What does it do?
-`easy-db-export` is a Node.js utility that automatically converts your live MySQL database into a portable `.sql` file. You can choose to export:
-1. **The Full Database:** Copies the structure (tables/columns) AND all the raw data (rows).
-2. **The Schema Only:** Copies just the structure, leaving the tables completely empty.
+`easy-db-export` is a Node.js utility that automatically converts your live databases (MySQL, PostgreSQL, or MongoDB) into portable backup files. 
 
-You can take the generated `.sql` file and run it on any other MySQL server in the world to instantly recreate your database!
+For **MySQL & PostgreSQL**, you can choose to export:
+1. **The Full Database:** Copies the structure AND raw data to a `.sql` file.
+2. **The Schema Only:** Copies just the structure to a `.sql` file.
+3. **To JSON:** Copies the raw data to a `.json` file.
+
+For **MongoDB** (NoSQL), you can export:
+1. **To JSON:** Exports all collections and documents to a `.json` file.
 
 ---
 
@@ -19,70 +23,48 @@ Open your terminal, navigate to your Node.js project folder, and run:
 npm install easy-db-export
 ```
 
+*(You may also need to run `npm install pg` for Postgres, or `npm install mongodb` for Mongo)*
+
 ---
 
 ## Step 2: Setup
 
-In your JavaScript file (e.g., `app.js` or `index.js`), import the library and initialize it with your database credentials.
+In your JavaScript file (e.g., `app.js`), import the library and initialize it. **Make sure to specify the `type`!**
 
 ```javascript
 const DatabaseExporter = require('easy-db-export');
 
 const exporter = new DatabaseExporter({
-    host: 'localhost',         // Usually 'localhost' or an IP address
-    user: 'root',              // Your MySQL username
-    password: 'password123',   // Your MySQL password
-    database: 'my_store_db'    // The name of the database you want to export
+    type: 'postgres',          // Choose 'mysql', 'postgres', or 'mongodb'
+    host: 'localhost',         
+    user: 'root',              
+    password: 'password123',   
+    database: 'my_store_db'    
 });
 ```
+*(For MongoDB, you can also just pass `uri: 'mongodb://localhost:27017/my_store_db'`)*
 
 ---
 
 ## Step 3: Exporting the Database
 
-You have two powerful methods available to you. Both methods use Promises, so you can use `.then()` or `await`.
-
-### Option A: Export Everything (Schema + Data)
-Use this if you want a complete, 1:1 backup of your database, including all the information stored inside it.
-
+### Option A: Export Everything to SQL (MySQL & Postgres Only)
 ```javascript
-// This will create a file named "full_backup.sql" in your current folder
 exporter.exportFullDbToSql('./full_backup.sql')
-    .then(() => {
-        console.log("Success! Full database exported.");
-    })
-    .catch((error) => {
-        console.error("Oops, something went wrong:", error);
-    });
+    .then(() => console.log("Success! Full database exported."));
 ```
 
-### Option B: Export Schema Only (Structure)
-Use this if you are setting up a testing environment or giving the database to another developer, and you want them to have the tables but **none of the private data**.
-
+### Option B: Export Schema Only (MySQL & Postgres Only)
 ```javascript
-// This will create a file named "schema_only.sql" in your current folder
 exporter.exportSchema('./schema_only.sql')
-    .then(() => {
-        console.log("Success! Schema exported.");
-    })
-    .catch((error) => {
-        console.error("Oops, something went wrong:", error);
-    });
+    .then(() => console.log("Success! Schema exported."));
 ```
 
----
-
-## Step 4: How to Import the `.sql` File
-Once your `.sql` file is generated, how do you (or your team) actually use it?
-
-**Using a Visual Tool (phpMyAdmin, DBeaver, MySQL Workbench):**
-1. Create a new, empty database.
-2. Click the **Import** or **Run SQL Script** button.
-3. Select your `.sql` file and execute it. 
-
-**Using the Terminal/Command Line:**
-```bash
-mysql -u your_username -p your_new_database < full_backup.sql
+### Option C: Export Data to JSON (Universal)
+Works across all three databases.
+```javascript
+exporter.exportToJson('./data_dump.json')
+    .then(() => console.log("Success! Data exported to JSON."));
 ```
 
 Enjoy seamless database backups! 🎉
